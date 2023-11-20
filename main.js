@@ -27,8 +27,9 @@ const path = 'output.log'; // Путь к файлу для вывода лог�
     var bet = 2;
 var firstBet = bet;
 var loss_count = 0;
-var count = 6;
+var count = 5;
 var balanceNow;
+
 function GetColor() {
     // Получаем все элементы <li> внутри списка <ul> с классом "balls"
     const liElements = document.querySelectorAll('ul.balls li');
@@ -57,46 +58,34 @@ async function start() {
             console.log("цвет черн");
             loss_count = 0;
             firstBet = bet;
+            FBet();
         }
         else {
             loss_count++;
             console.log("цвет дургой " + loss_count);
-            if (loss_count == count) {
-                console.log("ставим первый раз");
-                await sleep(500);//500
-                balanceNow = await balance();//500
-                console.log("баланс: " + balanceNow);
-                send(firstBet);
-                console.log("ставка " + firstBet);
-                await sleep(2000);//2000
-                while (balanceNow == await balance()) {//500
-                    console.log("баланс не изменился, ставим ещё раз" + balanceNow);
-                    await sleep(2000);//1000
-                    send(firstBet);
-                    console.log("ставка " + firstBet);
-                }
-                console.log("баланс изменился: " + await balance());
-            } else if (loss_count > count) {
+            if (loss_count <= count) {
                 console.log("ставим с умножением");
                 firstBet = firstBet * 2;
                 await sleep(500);
-                balanceNow = await balance();
-                console.log("баланс: " + balanceNow);
-                send(firstBet);
-                console.log("ставка " + firstBet);
-                await sleep(2000);
-                while (balanceNow == await balance()) {
-                    console.log("баланс не изменился, ставим ещё раз" + balanceNow);
-                    await sleep(2000);
-                    send(firstBet);
-                    console.log("ставка " + firstBet);
-                }
-                console.log("баланс изменился: " + await balance());
+                FBet();
             }
         }
     }
 }
-
+async function FBet(){
+    balanceNow = await balance();//500
+    console.log("баланс: " + balanceNow);
+    send(firstBet);
+    console.log("ставка " + firstBet);
+    await sleep(2000);//2000
+    while (balanceNow == await balance()) {//500
+        console.log("баланс не изменился, ставим ещё раз" + balanceNow);
+        await sleep(2000);//1000
+        send(firstBet);
+        console.log("ставка " + firstBet);
+    }
+    console.log("баланс изменился: " + await balance());
+}
 
 function send(amount) {
     const url = 'https://plgrubet.com/scripts/roulette/b_numbers';
